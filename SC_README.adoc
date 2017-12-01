@@ -1,0 +1,8 @@
+= ElasticSearch Cleanup of daily indexes
+
+* all SmartCosmos specific configuration is in `serverless.yml` the rest is vanilla upstream 
+* you need to install https://serverless.com/[Serverless Framwork]
+
+== Example 
+
+    serverless deploy --stage prod
