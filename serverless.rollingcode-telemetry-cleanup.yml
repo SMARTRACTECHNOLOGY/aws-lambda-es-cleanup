@@ -30,7 +30,7 @@ provider:
     es_endpoint: ${self:custom.es_endpoint.${self:provider.stage}}
     index: rolling-code-telemetry
     delete_after: ${self:custom.delete_after.${self:provider.stage}}
-    index_format: "%Y.%m.%d"
+    index_format: "%Y-%m-%d"
   stackTags: # Optional CF stack tags
     Owner: Peter Simon
     Purpose: es-cleanup-rollingcode-telemetry-cleanup

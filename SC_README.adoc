@@ -7,10 +7,10 @@ Serverless framework does not support seperate config file ATM
 
 == Lifecycles 2.0 - logstash k8s cluster log
 
-    ln -s serverless.lifecycles.yml serverless.yml
+    cp serverless.lifecycles.yml serverless.yml
     serverless deploy --stage prod
 
 == Rolling code telemetry events clean up
 
-    mv serverless.rollingcode-telemetry-cleanup.yml serverless.yml
+    cp serverless.rollingcode-telemetry-cleanup.yml serverless.yml
     serverless deploy --stage beta
