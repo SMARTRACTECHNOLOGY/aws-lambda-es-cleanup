@@ -24,7 +24,8 @@ provider:
   stage: ${opt:stage, self:custom.defaultStage}
   region: ${self:custom.region.${self:provider.stage}}
   profile: ${env:AWS_DEFAULT_PROFILE}
-  deploymentBucket: ${self:custom.deploymentBucket.${self:provider.stage}}
+  deploymentBucket:
+    name: ${env:S3_DEPLOYMENT_BUCKET}
   environment:
     es_endpoint: ${self:custom.es_endpoint.${self:provider.stage}}
     index: logstash
@@ -41,17 +42,17 @@ provider:
       Action:
         - "es:*"
       Resource: "arn:aws:es:${self:provider.region}:758616332952:domain/${self:custom.es_domain.${self:provider.stage}}/*"
-      # you must psecify the full ARN 
+      # you must psecify the full ARN
 
 
 functions:
   es-cleanup-lambda:
-    handler: es-cleanup.lambda_handler 
-    name: es-cleanup-lambda 
-    description: ES old index removal 
-    runtime: python2.7 
+    handler: es-cleanup.lambda_handler
+    name: es-cleanup-lambda
+    description: ES old index removal
+    runtime: python2.7
     memorySize: "128"
-    timeout: 180 
+    timeout: 300
     package:
       exclude:
         - ./**
@@ -62,4 +63,7 @@ functions:
         - CONTRIBUTING.md
     events:
       # Invoke Lambda function every night at 01.00 AM
-      - schedule: cron(0 1 * * ? *)    
+      - schedule: cron(0 1 * * ? *)
+
+resources:
+  Description: "AWS Lambda: Elasticsearch Index Cleanup"
