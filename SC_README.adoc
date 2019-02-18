@@ -1,8 +1,16 @@
 = ElasticSearch Cleanup of daily indexes
 
-* all SmartCosmos specific configuration is in `serverless.yml` the rest is vanilla upstream 
+* all SmartCosmos specific configuration is in `serverless.<use case>yml` the rest is vanilla upstream
 * you need to install https://serverless.com/[Serverless Framwork]
 
-== Example 
+Serverless framework does not support seperate config file ATM
 
+== Lifecycles 2.0 - logstash k8s cluster log
+
+    ln -s serverless.lifecycles.yml serverless.yml
     serverless deploy --stage prod
+
+== Rolling code telemetry events clean up
+
+    mv serverless.rollingcode-telemetry-cleanup.yml serverless.yml
+    serverless deploy --stage beta

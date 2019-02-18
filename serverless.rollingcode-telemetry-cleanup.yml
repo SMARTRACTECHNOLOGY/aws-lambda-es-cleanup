@@ -1,0 +1,69 @@
+custom:
+  defaultStage: beta
+  es_endpoint:
+    prod: vpc-enablement-solution-prod-2zjcv2k6jfheckwgucsp65aiq4.eu-west-1.es.amazonaws.com
+    beta: search-enablement-solution-qa-ummpk7jrag7qqgi67p2afoiuum.us-east-1.es.amazonaws.com
+  es_domain:
+    prod: enablement-solution-prod
+    beta: enablement-solution-qa
+  region:
+    prod: eu-west-1
+    beta: us-east-1
+  delete_after:
+    prod: "90"
+    beta: "30"
+  deploymentBucket:
+    prod: smartcosmos.lambda.repo
+    beta: net.smartcosmos.switches
+
+# serverless.yml
+service: rollingcode-telemetry-cleanup
+
+provider:
+  name: aws
+  stage: ${opt:stage, self:custom.defaultStage}
+  region: ${self:custom.region.${self:provider.stage}}
+  profile: ${env:AWS_DEFAULT_PROFILE}
+  deploymentBucket:
+    name: ${self:custom.deploymentBucket.${self:provider.stage}}
+  environment:
+    es_endpoint: ${self:custom.es_endpoint.${self:provider.stage}}
+    index: rolling-code-telemetry
+    delete_after: ${self:custom.delete_after.${self:provider.stage}}
+    index_format: "%Y.%m.%d"
+  stackTags: # Optional CF stack tags
+    Owner: Peter Simon
+    Purpose: es-cleanup-rollingcode-telemetry-cleanup
+    Solution: Enablement
+    Env: ${self:provider.stage}
+    Org: SMARTCOSMOS
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "es:*"
+      Resource: "arn:aws:es:${self:provider.region}:758616332952:domain/${self:custom.es_domain.${self:provider.stage}}/*"
+      # you must psecify the full ARN
+
+
+functions:
+  rollingcode-telemetry-cleanup:
+    handler: es-cleanup.lambda_handler
+    name: rollingcode-telemetry-cleanup
+    description: ES old index removal
+    runtime: python2.7
+    memorySize: "128"
+    timeout: 300
+    package:
+      exclude:
+        - ./**
+      include:
+        - es-cleanup.py
+        - LICENSE.md
+        - README.md
+        - CONTRIBUTING.md
+    events:
+      # Invoke Lambda function every night at 01.00 AM
+      - schedule: cron(0 1 * * ? *)
+
+resources:
+  Description: "AWS Lambda: Elasticsearch Index Cleanup"
